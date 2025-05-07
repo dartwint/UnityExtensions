@@ -1,0 +1,11 @@
+{
+    "name": "com.dartwint.extensions",
+    "version": "0.1.0",
+    "displayName": "Extensions for Unity",
+    "description": "Reusable editor and runtime tools for Unity projects.",
+    "unity": "6000.1",
+    "author": {
+        "name": "dartwint",
+        "url": "https://github.com/dartwint"
+    }
+}

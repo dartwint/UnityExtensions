@@ -1,0 +1,1 @@
+The purpose of this tool is to adjust the terrain's heights in the Editor according to its maximum height mesh setting, allowing for greater or lower adjustments to the terrain level than before.
