@@ -1,0 +1,19 @@
+{
+    "name": "Dartwint.UnityExtensions.PluginsDataPersistence",
+    "rootNamespace": "Dartwint.UnityExtensions.PluginsDataPersistence",
+    "references": [
+        "Dartwint.UnityExtensions.Utilities",
+        "Dartwint.UnityExtensions.Runtime.Utilities"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

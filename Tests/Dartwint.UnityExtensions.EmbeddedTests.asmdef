@@ -1,0 +1,49 @@
+{
+    "name": "Dartwint.UnityExtensions.EmbeddedTests",
+    "rootNamespace": "Dartwint.UnityExtensions.EmbeddedTests",
+    "references": [
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "Dartwint.UnityExtensions.PackageExporter",
+        "Dartwint.UnityExtensions.Utilities",
+        "Dartwint.UnityExtensions.Runtime.Utilities"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [
+        "Android",
+        "Editor",
+        "EmbeddedLinux",
+        "iOS",
+        "Kepler",
+        "LinuxStandalone64",
+        "CloudRendering",
+        "macOSStandalone",
+        "Switch",
+        "PS4",
+        "PS5",
+        "QNX",
+        "ReservedCFE",
+        "tvOS",
+        "WSA",
+        "VisionOS",
+        "WebGL",
+        "WindowsStandalone32",
+        "WindowsStandalone64",
+        "WindowsStandalone32Server",
+        "WindowsStandalone64Server",
+        "GameCoreXboxOne",
+        "XboxOne",
+        "GameCoreScarlett"
+    ],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

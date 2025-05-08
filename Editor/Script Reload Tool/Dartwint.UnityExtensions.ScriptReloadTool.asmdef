@@ -1,6 +1,6 @@
 {
-    "name": "PackageExporter",
-    "rootNamespace": "Dartwint.UnityExtensions.Editor.PackageExporter",
+    "name": "Dartwint.UnityExtensions.ScriptReloadTool",
+    "rootNamespace": "Dartwint.UnityExtensions.Editor",
     "references": [],
     "includePlatforms": [
         "Editor"

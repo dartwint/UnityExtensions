@@ -1,0 +1,20 @@
+{
+    "name": "Dartwint.UnityExtensions.PackageExporter",
+    "rootNamespace": "Dartwint.UnityExtensions.Editor.PackageExporter",
+    "references": [
+        "GUID:e9dcae9af9a7ec647a0f0af9cc183c06",
+        "GUID:91dab731ecdb1a4469a4858c71fd7110",
+        "GUID:4e32eeabfd3353c4cb4c58bf7fbf9e9d"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

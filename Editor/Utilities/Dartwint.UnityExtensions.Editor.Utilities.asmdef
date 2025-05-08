@@ -1,0 +1,18 @@
+{
+    "name": "Dartwint.UnityExtensions.Utilities",
+    "rootNamespace": "Dartwint.UnityExtensions.Editor.Utilities",
+    "references": [
+        "GUID:4e32eeabfd3353c4cb4c58bf7fbf9e9d"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

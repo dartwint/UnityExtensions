@@ -1,6 +1,6 @@
 {
-    "name": "ScriptReloadTool",
-    "rootNamespace": "Dartwint.UnityExtensions.Editor",
+    "name": "Dartwint.UnityExtensions.TerrainHeightsOffsetEditor",
+    "rootNamespace": "Dartwint.UnityExtensions.Editor.Terrain",
     "references": [],
     "includePlatforms": [
         "Editor"

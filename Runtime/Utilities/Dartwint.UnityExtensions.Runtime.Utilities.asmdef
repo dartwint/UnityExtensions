@@ -1,10 +1,8 @@
 {
-    "name": "TerrainHeightsOffsetEditor",
-    "rootNamespace": "Dartwint.UnityExtensions.Editor.Terrain",
+    "name": "Dartwint.UnityExtensions.Runtime.Utilities",
+    "rootNamespace": "Dartwint.UnityExtensions.Runtime.Utilities",
     "references": [],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

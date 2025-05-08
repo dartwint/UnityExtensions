@@ -144,7 +144,7 @@ public class AssetsSelectorWindow : EditorWindow
         }
         else if (selectionMode == SelectionMode.Single)
         {
-            selectedItem = AssetPathRetriever.GetAssetPath(selectedItem);
+            selectedItem = AssetFinder.GetAssetRelativePath(selectedItem);
 
             if (fileType == ItemType.File)
             {
@@ -190,7 +190,7 @@ public class AssetsSelectorWindow : EditorWindow
     {
         path = Path.GetFullPath(path).Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
 
-        string projectDir = AssetPathRetriever.ProjectDirectoryPath.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        string projectDir = AssetFinder.ProjectRootDir.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
 
         if (path + "/" == projectDir)
             return true;
@@ -310,7 +310,7 @@ public class AssetsSelectorWindow : EditorWindow
     {
         for (int i = 0; i < paths.Length; i++)
         {
-            paths[i] = AssetPathRetriever.GetAssetPath(paths[i]);
+            paths[i] = AssetFinder.GetAssetRelativePath(paths[i]);
         }
     }
 

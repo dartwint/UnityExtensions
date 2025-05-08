@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
+// View
 public class ExportUnityPackageWindow : EditorWindow
 {
     private ExportWindowData _data;
@@ -25,7 +26,10 @@ public class ExportUnityPackageWindow : EditorWindow
 
     private void Awake()
     {
-        _currentDir = AssetPathRetriever.GetScriptRootDir(typeof(ExportUnityPackageWindow));
+        var monoScript = MonoScript.FromScriptableObject(this);
+        _currentDir = AssetFinder.GetMonoScriptPath(monoScript);
+        _currentDir = AssetDatabase.GetAssetPath(MonoScript.FromScriptableObject(this));
+
         _dataAssetPath = _dataAssetPath.Insert(0, _currentDir + _dataLocalDir);
     }
 
