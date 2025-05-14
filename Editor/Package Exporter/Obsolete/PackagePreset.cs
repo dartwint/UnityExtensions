@@ -12,15 +12,9 @@ public class PackagePreset : ScriptableObject
 
     public ExportPackageOptions ExportPackageOptions { get; private set; } = ExportPackageOptions.Interactive;
 
-    private readonly static string[] imagesExtensions = { ".png", ".jpg", ".jpeg", ".tga", ".bmp", ".gif", ".psd", ".tiff", ".tif", ".webp" };
-
     [SerializeField] private string[] _extensions = { ".png", ".jpg", ".jpeg", ".tga", ".bmp", ".gif", ".psd", ".tiff", ".tif", ".webp" };
 
     public List<string> assetPaths;
-    /*public List<string> assetDirs;
-
-    public List<string> ignorePaths;
-    public List<string> ignoreDirs;*/
 
     private void OnEnable()
     {
@@ -110,12 +104,6 @@ public class PackagePreset : ScriptableObject
         {
             if (_package.assetPaths == null)
                 _package.assetPaths = new List<string>();
-            /*if (_package.assetDirs == null)
-                _package.assetDirs = new List<string>();
-            if (_package.ignorePaths == null)
-                _package.ignorePaths = new List<string>();
-            if (_package.ignoreDirs == null)
-                _package.ignoreDirs = new List<string>();*/
 
             switch (fileSelectionType)
             {
@@ -127,12 +115,6 @@ public class PackagePreset : ScriptableObject
                                 _package.assetPaths.Add(file);
                         }
 
-                        /*foreach (string dir in directories)
-                        {
-                            if (!_package.assetDirs.Contains(dir))
-                                _package.assetDirs.Add(dir);
-                        }*/
-
                         break;
                     }
                 case SelectionOperandType.MASK:
@@ -143,18 +125,11 @@ public class PackagePreset : ScriptableObject
                                 _package.assetPaths.Remove(file);
                         }
 
-                        /*foreach (string dir in directories)
-                        {
-                            if (_package.assetDirs.Contains(dir))
-                                _package.assetDirs.Remove(dir);
-                        }*/
-
                         break;
                     }
             }
 
             EditorUtility.SetDirty(_package);
-            //Debug.Log(_package.name + " is dirty?: " + EditorUtility.IsDirty(_package));
             AssetDatabase.SaveAssetIfDirty(_package);
 
             Debug.Log($"Files in {_package.name} to export count: " + _package.assetPaths.Count);

@@ -1,9 +1,8 @@
 {
-    "name": "Dartwint.UnityExtensions.PluginsDataPersistence",
-    "rootNamespace": "Dartwint.UnityExtensions.PluginsDataPersistence",
+    "name": "Dartwint.UnityExtensions.Helpers",
+    "rootNamespace": "Dartwint.UnityExtensions.Editor.Helpers",
     "references": [
-        "Dartwint.UnityExtensions.Utilities",
-        "Dartwint.UnityExtensions.Runtime.Utilities"
+        "GUID:4e32eeabfd3353c4cb4c58bf7fbf9e9d"
     ],
     "includePlatforms": [
         "Editor"

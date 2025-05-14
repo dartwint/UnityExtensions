@@ -144,7 +144,7 @@ public class AssetsSelectorWindow : EditorWindow
         }
         else if (selectionMode == SelectionMode.Single)
         {
-            selectedItem = AssetFinder.GetAssetRelativePath(selectedItem);
+            selectedItem = AssetFinder.GetRelativeToAssetsPath(selectedItem);
 
             if (fileType == ItemType.File)
             {
@@ -310,7 +310,7 @@ public class AssetsSelectorWindow : EditorWindow
     {
         for (int i = 0; i < paths.Length; i++)
         {
-            paths[i] = AssetFinder.GetAssetRelativePath(paths[i]);
+            paths[i] = AssetFinder.GetRelativeToAssetsPath(paths[i]);
         }
     }
 

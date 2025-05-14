@@ -1,10 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-// View
+[Obsolete("Use ExportPackageWindow instead")]
 public class ExportUnityPackageWindow : EditorWindow
 {
     private ExportWindowData _data;
@@ -28,7 +29,6 @@ public class ExportUnityPackageWindow : EditorWindow
     {
         var monoScript = MonoScript.FromScriptableObject(this);
         _currentDir = AssetFinder.GetMonoScriptPath(monoScript);
-        _currentDir = AssetDatabase.GetAssetPath(MonoScript.FromScriptableObject(this));
 
         _dataAssetPath = _dataAssetPath.Insert(0, _currentDir + _dataLocalDir);
     }
@@ -41,7 +41,7 @@ public class ExportUnityPackageWindow : EditorWindow
     }
 
 
-    [MenuItem("Tools/Export/Export Unity Package")]
+    //[MenuItem("Tools/Export/Export Unity Package")]
     public static void ShowWindow()
     {
         GetWindow<ExportUnityPackageWindow>("Create Unity Package");

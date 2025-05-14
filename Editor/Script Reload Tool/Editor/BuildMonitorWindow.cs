@@ -36,7 +36,6 @@ public class BuildMonitorWindow : EditorWindow
 
     private void ReloadAssemblies() => AssetDatabase.Refresh();
 
-
     public BuildStatusSettings LoadSettingsAsset()
     {
         string scriptPath = AssetDatabase.GetAssetOrScenePath(MonoScript.FromScriptableObject(this));
@@ -124,6 +123,8 @@ public class BuildMonitorWindow : EditorWindow
 
     private void OnDestroy()
     {
+        Debug.Log($"OnDestroy() object:{this}. Has Monitor instance: {_compilationStatusMonitor != null}");
+
         _compilationStatusMonitor.DomainStatusChanged -= OnAssembliesStatusChanged;
         _compilationStatusMonitor.Dispose();
     }

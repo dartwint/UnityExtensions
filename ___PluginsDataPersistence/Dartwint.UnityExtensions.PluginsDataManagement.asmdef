@@ -1,7 +1,8 @@
 {
-    "name": "Dartwint.UnityExtensions.Utilities",
-    "rootNamespace": "Dartwint.UnityExtensions.Editor.Utilities",
+    "name": "Dartwint.UnityExtensions.PluginsDataManagement",
+    "rootNamespace": "Dartwint.UnityExtensions.PluginsDataManagement",
     "references": [
+        "GUID:91dab731ecdb1a4469a4858c71fd7110",
         "GUID:4e32eeabfd3353c4cb4c58bf7fbf9e9d"
     ],
     "includePlatforms": [

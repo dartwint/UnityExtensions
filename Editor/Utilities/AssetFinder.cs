@@ -11,7 +11,7 @@ public class AssetFinder
         get => Directory.GetParent(Application.dataPath).FullName.UnifyDirPath();
     }
 
-    public static string AssetsRelativePath
+    public static string AssetsDirectoryRelativePath
     {
         get => Path.GetRelativePath(
             Directory.GetParent(Application.dataPath).FullName, 
@@ -42,9 +42,10 @@ public class AssetFinder
     public static string GetAssetDirPath(string path) => 
         path.UnifyDirSeparator().Substring(0, path.LastIndexOf('/'));
 
-    public static string GetAssetRelativePath(string absolutePath)
+    public static string GetRelativeToAssetsPath(string absolutePath)
     {
-        if (string.IsNullOrEmpty(absolutePath)) return string.Empty;
+        if (string.IsNullOrEmpty(absolutePath)) 
+            return string.Empty;
 
         return Path.GetRelativePath(ProjectRootDir, absolutePath).UnifyDirSeparator();
     }
