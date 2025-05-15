@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using UnityEditor;
 
 namespace Dartwint.UnityExtensions.Editor.PackageExporter
@@ -22,7 +21,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
                     throw new ExportProcessorTypeMismatchException(packagePreset.exportInfo.GetType(), GetType(), packagePreset);
 
                 AssetDatabase.ExportPackage(
-                    packagePreset.packageInfo.files.ToArray(),
+                    packagePreset.packageInfo.GetFiles(),
                     packagePreset.exportInfo.GetTargetPath(),
                     info.exportPackageOptions);
 

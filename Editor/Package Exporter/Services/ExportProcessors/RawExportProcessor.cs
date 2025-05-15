@@ -23,7 +23,8 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
                 if (!Directory.Exists(info.directoryPath))
                     return false;
 
-                foreach (string file in packagePreset.packageInfo.files)
+                string[] files = packagePreset.packageInfo.GetFiles();
+                foreach (string file in files)
                 {
                     File.Copy(file, Path.Combine(info.directoryPath, Path.GetFileName(file)), true);
                 }

@@ -7,7 +7,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
     [System.Serializable]
     public class UnityPackageExportInfo : ExportInfo
     {
-        public string fileName = "NewUnityPackage";
+        public string fileName = "UnityPackage";
         public ExportPackageOptions exportPackageOptions;
 
         public override string GetTargetPath() =>
