@@ -2,33 +2,19 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 {
     public class ExportProcessor
     {
-        private IRawExportProcessor _rawExportProcessor;
-        private IUnityPackageExportProcessor _unityExportProcessor;
+        private IExportProcessor _exportProcessor;
 
-        public void SetRawExportProcessor(IRawExportProcessor exportProcessor)
+        public ExportProcessor(IExportProcessor exportProcessor)
         {
-            _rawExportProcessor = exportProcessor;
+            _exportProcessor = exportProcessor;
         }
 
-        public void SetUnityPackageExportProcessor(IUnityPackageExportProcessor exportProcessor)
+        public bool Export(PackagePresetNEW packagePreset)
         {
-            _unityExportProcessor = exportProcessor;
-        }
+            if (packagePreset == null)
+                throw new System.ArgumentNullException(nameof(packagePreset));
 
-        public bool ExportRaw(PackageInfo packageInfo, string targetDirectory)
-        {
-            if (_rawExportProcessor == null)
-                return false;
-
-            return _rawExportProcessor.Export(packageInfo, targetDirectory);
-        }
-
-        public bool ExportUnityPackage(PackageInfo packageInfo, UnityPackageExportInfo exportInfo)
-        {
-            if (_unityExportProcessor == null)
-                return false;
-
-            return _unityExportProcessor.Export(packageInfo, exportInfo);
+            return _exportProcessor.Export(packagePreset);
         }
     }
 }
