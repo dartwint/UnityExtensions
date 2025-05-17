@@ -17,10 +17,11 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
         Directory
     }
 
-    public class SelectiorOptions
+    public class SelectorOptions
     {
-        public SelectionMode selectionMode;
-        public SelectionItemType selectionItemType;
+        public SelectionMode selectionMode = SelectionMode.Single;
+        public SelectionItemType selectionItemType = SelectionItemType.File;
+        public SearchOption searchOption = SearchOption.TopDirectoryOnly;
     }
 
     public enum SelectionMode
@@ -29,7 +30,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
         Multiple
     }
 
-    public enum SelectiorDialogResult
+    public enum SelectorDialogResult
     {
         Canceled,
         OK,
@@ -43,9 +44,8 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
         private PackagePresetNEW _preset;
 
         public PackageFilesEditMode PackageFilesEditMode { get; private set; }
-        public SelectionMode selectionMode;
-        public SelectiorDialogResult selectionResult;
-        public SearchOption searchOption;
+        public SelectorOptions SelectorOptions { get; private set; } = new();
+        public SelectorDialogResult selectorResult;
 
         public event Action ViewClosed;
 
@@ -69,50 +69,44 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             _preset.Save();
         }
 
-        public void HandleSelector()
+        // TO DO: refactor
+        public void HandleSelectorDialog()
         {
             string folderPath = "";
 
-            if (selectionMode == SelectionMode.Multiple)
+            if (SelectorOptions.selectionMode == SelectionMode.Single)
             {
-                folderPath = EditorUtility.OpenFolderPanel(GetSelectorPanelTitle(), Application.dataPath, "");
+                if (SelectorOptions.selectionItemType == SelectionItemType.File)
+                {
+                    folderPath = EditorUtility.OpenFilePanelWithFilters(
+                        GetSelectorPanelTitle(), Application.dataPath, new string[] { "All files", "*" });
+                }
+                else if (SelectorOptions.selectionItemType == SelectionItemType.Directory)
+                {
+                    folderPath = EditorUtility.OpenFolderPanel(
+                        GetSelectorPanelTitle(), Application.dataPath, "");
+                }
             }
-            else if (selectionMode == SelectionMode.Single)
+            else if (SelectorOptions.selectionMode == SelectionMode.Multiple)
             {
-                folderPath = EditorUtility.OpenFilePanelWithFilters(
-                    GetSelectorPanelTitle(), Application.dataPath, new string[] { "All files", "*" });
+                Debug.LogAssertion("Selector with multiple selection mode is not implemented");
             }
 
             OnSelectorClosed(folderPath);
         }
 
-        public void AddFile(string file)
-        {
-            model.AddFile(file);
-        }
-
-        public void RemoveFile(string file)
+        public void RemoveFileButtonClick(string file)
         {
             model.RemoveFile(file);
         }
 
-        public void RemoveFiles(string[] files)
-        {
-            model.RemoveFiles(files);
-        }
-
-        public void AddFiles(string[] files)
-        {
-            model.AddFiles(files);
-        }
-
-        public void AddItemsButtonClick()
+        public void OpenViewForAdditionButtonClick()
         {
             PackageFilesEditMode = PackageFilesEditMode.ADD;
             ShowView();
         }
 
-        public void RemoveItemsButtonClick()
+        public void OpenViewForRemovalButtonClick()
         {
             PackageFilesEditMode = PackageFilesEditMode.REMOVE;
             ShowView();
@@ -131,54 +125,33 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             ViewClosed?.Invoke();
         }
 
-        public void AddItems(string folderPath)
+        // TO DO: refactor
+        private void UpdatePickedItemsList(string itemPath)
         {
-            if (selectionMode == SelectionMode.Multiple)
+            if (SelectorOptions.selectionMode == SelectionMode.Multiple)
             {
                 foreach (string ext in model.GetExtensions())
                 {
-                    string[] files = Directory.GetFiles(folderPath, "*" + ext, searchOption);
-                    FormatPaths(ref files);
+                    string[] files = Directory.GetFiles(itemPath, "*" + ext, SelectorOptions.searchOption);
+                    Helper.FormatPaths(ref files);
+
                     model.AddFiles(files);
                 }
             }
-            else if (selectionMode == SelectionMode.Single)
+            else if (SelectorOptions.selectionMode == SelectionMode.Single)
             {
-                folderPath = AssetFinder.GetRelativeToAssetsPath(folderPath);
-
-                AddFile(folderPath);
-            }
-        }
-
-        public void RemoveItems(string folderPath)
-        {
-            if (selectionMode == SelectionMode.Multiple)
-            {
-                foreach (string ext in model.GetExtensions())
-                {
-                    string[] files = Directory.GetFiles(folderPath, "*" + ext, searchOption);
-                    FormatPaths(ref files);
-                    RemoveFiles(files);
-                }
-            }
-            else if (selectionMode == SelectionMode.Single)
-            {
-                folderPath = AssetFinder.GetRelativeToAssetsPath(folderPath);
-
-                RemoveFile(folderPath);
+                itemPath = AssetFinder.GetRelativeToAssetsPath(itemPath);
+                model.AddFile(itemPath);
             }
         }
 
         private void OnSelectorClosed(string selectedFile)
         {
-            selectionResult = ValidateSelection(selectedFile);
-            if (selectionResult != SelectiorDialogResult.OK)
-                return;
-
-            if (PackageFilesEditMode == PackageFilesEditMode.ADD)
-                AddItems(selectedFile);
-            else if (PackageFilesEditMode == PackageFilesEditMode.REMOVE)
-                RemoveItems(selectedFile);
+            selectorResult = ValidateSelectionResult(selectedFile);
+            if (selectorResult == SelectorDialogResult.OK)
+            {
+                UpdatePickedItemsList(selectedFile);
+            }
         }
 
         private string GetViewTitle(PackageFilesEditMode pickMode)
@@ -195,55 +168,32 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
                     }
             }
 
-            return "File picker (none)";
+            return string.Empty;
+        }
+
+        private static SelectorDialogResult ValidateSelectionResult(string selectedPath)
+        {
+            if (string.IsNullOrEmpty(selectedPath))
+                return SelectorDialogResult.Canceled;
+
+            if (Helper.IsInProjectFolder(selectedPath))
+                return SelectorDialogResult.OK;
+            else
+                return SelectorDialogResult.OutOfProjectFolder;
         }
 
         private string GetSelectorPanelTitle()
         {
             string title = "";
 
-            if (selectionMode == SelectionMode.Multiple)
+            if (SelectorOptions.selectionMode == SelectionMode.Multiple)
                 title += "Multiple ";
-            else if (selectionMode == SelectionMode.Single)
+            else if (SelectorOptions.selectionMode == SelectionMode.Single)
                 title += "Single ";
 
             title += "selector";
 
             return title;
-        }
-
-        private static SelectiorDialogResult ValidateSelection(string folderPath)
-        {
-            if (string.IsNullOrEmpty(folderPath))
-                return SelectiorDialogResult.Canceled;
-
-            if (IsInProjectFolder(folderPath))
-                return SelectiorDialogResult.OK;
-            else
-                return SelectiorDialogResult.OutOfProjectFolder;
-        }
-
-        // TO DO: move method to another class
-        public static bool IsInProjectFolder(string path)
-        {
-            path = Path.GetFullPath(path).Replace(
-                Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-
-            string projectDir = AssetFinder.ProjectRootDir.Replace(
-                Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-
-            if (path + "/" == projectDir)
-                return true;
-
-            return path.StartsWith(projectDir);
-        }
-
-        public static void FormatPaths(ref string[] paths)
-        {
-            for (int i = 0; i < paths.Length; i++)
-            {
-                paths[i] = AssetFinder.GetRelativeToAssetsPath(paths[i]);
-            }
         }
     }
 }

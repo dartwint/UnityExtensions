@@ -53,7 +53,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
                     files[i] = EditorGUILayout.TextField(files[i]);
                     if (GUILayout.Button("X", GUILayout.Width(20)))
                     {
-                        viewModel.RemoveFile(files[i]);
+                        viewModel.RemoveFileButtonClick(files[i]);
                     }
                     EditorGUILayout.EndHorizontal();
                 }
@@ -73,19 +73,32 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
         {
             GUILayout.BeginVertical(GUI.skin.box);
 
-            viewModel.selectionMode = (SelectionMode) EditorGUILayout.EnumPopup(nameof(SelectionMode), viewModel.selectionMode);
-            if (viewModel.selectionMode != SelectionMode.Single)
+            //GUI.enabled = false;
+            viewModel.SelectorOptions.selectionItemType = (SelectionItemType)
+                EditorGUILayout.EnumPopup("File type", viewModel.SelectorOptions.selectionItemType);
+            //if (viewModel.SelectorOptions.selectionItemType == SelectionItemType.Directory)
+            //{
+            //    GUI.enabled = false;
+            //    viewModel.SelectorOptions.selectionMode = SelectionMode.Single;
+            //    viewModel.SelectorOptions.searchOption = SearchOption.TopDirectoryOnly;
+            //}
+            //GUI.enabled = true;
+
+            viewModel.SelectorOptions.selectionMode = (SelectionMode)
+                EditorGUILayout.EnumPopup(nameof(SelectionMode), viewModel.SelectorOptions.selectionMode);
+            if (viewModel.SelectorOptions.selectionItemType == SelectionItemType.Directory)
             {
-                viewModel.searchOption = (SearchOption) EditorGUILayout.EnumPopup(nameof(SearchOption), viewModel.searchOption);
+                viewModel.SelectorOptions.searchOption = (SearchOption)
+                    EditorGUILayout.EnumPopup(nameof(SearchOption), viewModel.SelectorOptions.searchOption);
             }
 
             if (GUILayout.Button("Open selector"))
             {
-                viewModel.HandleSelector();
-                if (viewModel.selectionResult == SelectiorDialogResult.OutOfProjectFolder)
-                {
-                    DrawOutOfProjectWarning();
-                }
+                viewModel.HandleSelectorDialog();
+            }
+            if (viewModel.selectorResult == SelectorDialogResult.OutOfProjectFolder)
+            {
+                DrawOutOfProjectWarning();
             }
 
             GUILayout.EndVertical();
@@ -95,7 +108,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
         {
             GUILayout.BeginHorizontal(GUI.skin.box);
             GUILayout.Label(EditorGUIUtility.IconContent("console.warnicon.sml"), GUILayout.Width(20));
-            GUILayout.Label("Selected item was out of Unity project directory. Selection was cancelled.");
+            GUILayout.Label("Last selection is out of Unity project directory. Selection cancelled.");
             GUILayout.EndHorizontal();
         }
     }

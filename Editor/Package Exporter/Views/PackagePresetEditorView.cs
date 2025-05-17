@@ -31,6 +31,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
         private void OnViewClosed()
         {
             _filePickerViewModel.ViewClosed -= OnViewClosed;
+            _filePickerViewModel = null;
             Repaint();
         }
 
@@ -45,12 +46,12 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Add items"))
             {
-                _filePickerViewModel.AddItemsButtonClick();
+                _filePickerViewModel.OpenViewForAdditionButtonClick();
             }
 
             if (GUILayout.Button("Remove items"))
             {
-                _filePickerViewModel.RemoveItemsButtonClick();
+                _filePickerViewModel.OpenViewForRemovalButtonClick();
             }
             GUILayout.EndHorizontal();
         }
