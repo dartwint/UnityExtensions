@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -36,7 +34,6 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             viewModel.CloseView(this);
         }
 
-        // FIX ME: unnable to remove selected files by clicking on "X" 
         private void DrawSelectedFiles()
         {
             string title = $"Selected files";
@@ -76,15 +73,15 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
         {
             GUILayout.BeginVertical(GUI.skin.box);
 
-            viewModel.selectionSize = (SelectionSize) EditorGUILayout.EnumPopup(nameof(SelectionSize), viewModel.selectionSize);
-            if (viewModel.selectionSize != SelectionSize.Single)
+            viewModel.selectionMode = (SelectionMode) EditorGUILayout.EnumPopup(nameof(SelectionMode), viewModel.selectionMode);
+            if (viewModel.selectionMode != SelectionMode.Single)
             {
                 viewModel.searchOption = (SearchOption) EditorGUILayout.EnumPopup(nameof(SearchOption), viewModel.searchOption);
             }
 
             if (GUILayout.Button("Open selector"))
             {
-                HandleSelector();
+                viewModel.HandleSelector();
                 if (viewModel.selectionResult == SelectiorDialogResult.OutOfProjectFolder)
                 {
                     DrawOutOfProjectWarning();
@@ -92,37 +89,6 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             }
 
             GUILayout.EndVertical();
-        }
-
-        private void HandleSelector()
-        {
-            string folderPath = "";
-
-            if (viewModel.selectionSize == SelectionSize.Multiple)
-            {
-                folderPath = EditorUtility.OpenFolderPanel(GetSelectorPanelTitle(), Application.dataPath, "");
-            }
-            else if (viewModel.selectionSize == SelectionSize.Single)
-            {
-                folderPath = EditorUtility.OpenFilePanelWithFilters(
-                    GetSelectorPanelTitle(), Application.dataPath, new string[] { "All files", "*" });
-            }
-
-            viewModel.OnSelectorClosed(folderPath);
-        }
-
-        private string GetSelectorPanelTitle()
-        {
-            string title = "";
-
-            if (viewModel.selectionSize == SelectionSize.Multiple)
-                title += "Multiple ";
-            else if (viewModel.selectionSize == SelectionSize.Single)
-                title += "Single ";
-
-            title += "selector";
-
-            return title;
         }
 
         private void DrawOutOfProjectWarning()

@@ -1,17 +1,29 @@
 using System;
 using System.IO;
+using UnityEditor;
 using UnityEngine;
 
 namespace Dartwint.UnityExtensions.Editor.PackageExporter
 {
-    public enum PickMode
+    public enum PackageFilesEditMode
     {
         ADD,
         REMOVE
     }
 
-    // TO DO: perhaps rename the type
-    public enum SelectionSize
+    public enum SelectionItemType
+    {
+        File,
+        Directory
+    }
+
+    public class SelectiorOptions
+    {
+        public SelectionMode selectionMode;
+        public SelectionItemType selectionItemType;
+    }
+
+    public enum SelectionMode
     {
         Single,
         Multiple
@@ -30,8 +42,8 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 
         private PackagePresetNEW _preset;
 
-        public PickMode pickMode;
-        public SelectionSize selectionSize;
+        public PackageFilesEditMode PackageFilesEditMode { get; private set; }
+        public SelectionMode selectionMode;
         public SelectiorDialogResult selectionResult;
         public SearchOption searchOption;
 
@@ -49,12 +61,29 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             if (files == null || files.Length == 0)
                 return;
 
-            if (pickMode == PickMode.ADD)
+            if (PackageFilesEditMode == PackageFilesEditMode.ADD)
                 _preset.packageInfo.AddFiles(files);
-            else if (pickMode == PickMode.REMOVE)
+            else if (PackageFilesEditMode == PackageFilesEditMode.REMOVE)
                 _preset.packageInfo.RemoveFiles(files);
 
             _preset.Save();
+        }
+
+        public void HandleSelector()
+        {
+            string folderPath = "";
+
+            if (selectionMode == SelectionMode.Multiple)
+            {
+                folderPath = EditorUtility.OpenFolderPanel(GetSelectorPanelTitle(), Application.dataPath, "");
+            }
+            else if (selectionMode == SelectionMode.Single)
+            {
+                folderPath = EditorUtility.OpenFilePanelWithFilters(
+                    GetSelectorPanelTitle(), Application.dataPath, new string[] { "All files", "*" });
+            }
+
+            OnSelectorClosed(folderPath);
         }
 
         public void AddFile(string file)
@@ -67,6 +96,11 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             model.RemoveFile(file);
         }
 
+        public void RemoveFiles(string[] files)
+        {
+            model.RemoveFiles(files);
+        }
+
         public void AddFiles(string[] files)
         {
             model.AddFiles(files);
@@ -74,19 +108,20 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 
         public void AddItemsButtonClick()
         {
-            ShowView(PickMode.ADD);
+            PackageFilesEditMode = PackageFilesEditMode.ADD;
+            ShowView();
         }
 
         public void RemoveItemsButtonClick()
         {
-            ShowView(PickMode.REMOVE);
+            PackageFilesEditMode = PackageFilesEditMode.REMOVE;
+            ShowView();
         }
 
-        private void ShowView(PickMode pickMode)
+        private void ShowView()
         {
-            this.pickMode = pickMode;
             FilePickerWindow window = ScriptableObject.CreateInstance<FilePickerWindow>();
-            window.titleContent.text = GetViewTitle(pickMode);
+            window.titleContent.text = GetViewTitle(PackageFilesEditMode);
             window.viewModel = this;
             window.ShowModal();
         }
@@ -98,7 +133,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 
         public void AddItems(string folderPath)
         {
-            if (selectionSize == SelectionSize.Multiple)
+            if (selectionMode == SelectionMode.Multiple)
             {
                 foreach (string ext in model.GetExtensions())
                 {
@@ -107,7 +142,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
                     model.AddFiles(files);
                 }
             }
-            else if (selectionSize == SelectionSize.Single)
+            else if (selectionMode == SelectionMode.Single)
             {
                 folderPath = AssetFinder.GetRelativeToAssetsPath(folderPath);
 
@@ -117,16 +152,16 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 
         public void RemoveItems(string folderPath)
         {
-            if (selectionSize == SelectionSize.Multiple)
+            if (selectionMode == SelectionMode.Multiple)
             {
                 foreach (string ext in model.GetExtensions())
                 {
                     string[] files = Directory.GetFiles(folderPath, "*" + ext, searchOption);
                     FormatPaths(ref files);
-                    model.RemoveFiles(files);
+                    RemoveFiles(files);
                 }
             }
-            else if (selectionSize == SelectionSize.Single)
+            else if (selectionMode == SelectionMode.Single)
             {
                 folderPath = AssetFinder.GetRelativeToAssetsPath(folderPath);
 
@@ -134,27 +169,27 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             }
         }
 
-        public void OnSelectorClosed(string selectedFile)
+        private void OnSelectorClosed(string selectedFile)
         {
             selectionResult = ValidateSelection(selectedFile);
             if (selectionResult != SelectiorDialogResult.OK)
                 return;
 
-            if (pickMode == PickMode.ADD)
+            if (PackageFilesEditMode == PackageFilesEditMode.ADD)
                 AddItems(selectedFile);
-            else if (pickMode == PickMode.REMOVE)
+            else if (PackageFilesEditMode == PackageFilesEditMode.REMOVE)
                 RemoveItems(selectedFile);
         }
 
-        private string GetViewTitle(PickMode pickMode)
+        private string GetViewTitle(PackageFilesEditMode pickMode)
         {
             switch (pickMode)
             {
-                case PickMode.ADD:
+                case PackageFilesEditMode.ADD:
                     {
                         return "File picker (addition)";
                     }
-                case PickMode.REMOVE:
+                case PackageFilesEditMode.REMOVE:
                     {
                         return "File picker (removal)";
                     }
@@ -163,7 +198,21 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             return "File picker (none)";
         }
 
-        public static SelectiorDialogResult ValidateSelection(string folderPath)
+        private string GetSelectorPanelTitle()
+        {
+            string title = "";
+
+            if (selectionMode == SelectionMode.Multiple)
+                title += "Multiple ";
+            else if (selectionMode == SelectionMode.Single)
+                title += "Single ";
+
+            title += "selector";
+
+            return title;
+        }
+
+        private static SelectiorDialogResult ValidateSelection(string folderPath)
         {
             if (string.IsNullOrEmpty(folderPath))
                 return SelectiorDialogResult.Canceled;
@@ -175,7 +224,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
         }
 
         // TO DO: move method to another class
-        private static bool IsInProjectFolder(string path)
+        public static bool IsInProjectFolder(string path)
         {
             path = Path.GetFullPath(path).Replace(
                 Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
