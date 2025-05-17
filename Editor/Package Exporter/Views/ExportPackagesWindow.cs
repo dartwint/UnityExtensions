@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Dartwint.UnityExtensions.Editor.PackageExporter
 {
-    public class ExportPackagesWindowView : EditorWindow
+    public class ExportPackagesWindow : EditorWindow
     {
         private ExportPresetsViewModel _viewModel;
 
