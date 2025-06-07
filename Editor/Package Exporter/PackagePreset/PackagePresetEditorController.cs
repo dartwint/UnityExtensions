@@ -3,11 +3,14 @@ using UnityEngine;
 
 namespace Dartwint.UnityExtensions.Editor.PackageExporter
 {
+    /// <summary>
+    /// The view and controller operating with <see cref="PackagePresetNEW"></see>
+    /// </summary>
     [CustomEditor(typeof(PackagePresetNEW))]
-    public class PackagePresetEditorView : UnityEditor.Editor
+    public class PackagePresetEditorController : UnityEditor.Editor
     {
         private PackagePresetNEW _target;
-        private FilePickerViewModel _filePickerViewModel;
+        private FilePickerMediatorPanelViewModel _filePickerViewModel;
 
         public override void OnInspectorGUI()
         {
@@ -19,7 +22,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 
             if (_filePickerViewModel == null)
             {
-                _filePickerViewModel = new FilePickerViewModel(new FilePickerModel(), _target);
+                _filePickerViewModel = new FilePickerMediatorPanelViewModel(new FilePickerMediatorPanelModel(), _target);
                 _filePickerViewModel.ViewClosed += OnViewClosed;
             }
 

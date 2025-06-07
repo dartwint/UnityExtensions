@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace Dartwint.UnityExtensions.Editor.PackageExporter
 {
-    public class FilePickerWindow : EditorWindow
+    public class FilePickerMediatorPanelWindow : EditorWindow
     {
-        public FilePickerViewModel viewModel;
+        public FilePickerMediatorPanelViewModel viewModel;
 
         private Vector2 _controlsScrollPosition;
         private Vector2 _filesListingScrollPosition;

@@ -12,7 +12,6 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 
         public void Save()
         {
-            // ??
             packageInfo.SaveFiles();
 
             EditorUtility.SetDirty(this);

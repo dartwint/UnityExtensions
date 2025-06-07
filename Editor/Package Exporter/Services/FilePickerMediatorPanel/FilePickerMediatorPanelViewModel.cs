@@ -37,9 +37,9 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
         OutOfProjectFolder
     }
 
-    public class FilePickerViewModel
+    public class FilePickerMediatorPanelViewModel
     {
-        public FilePickerModel model;
+        public FilePickerMediatorPanelModel model;
 
         private PackagePresetNEW _preset;
 
@@ -49,7 +49,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 
         public event Action ViewClosed;
 
-        public FilePickerViewModel(FilePickerModel model, PackagePresetNEW preset)
+        public FilePickerMediatorPanelViewModel(FilePickerMediatorPanelModel model, PackagePresetNEW preset)
         {
             this.model = model;
             _preset = preset;
@@ -114,13 +114,13 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 
         private void ShowView()
         {
-            FilePickerWindow window = ScriptableObject.CreateInstance<FilePickerWindow>();
+            FilePickerMediatorPanelWindow window = ScriptableObject.CreateInstance<FilePickerMediatorPanelWindow>();
             window.titleContent.text = GetViewTitle(PackageFilesEditMode);
             window.viewModel = this;
             window.ShowModal();
         }
 
-        public void CloseView(FilePickerWindow window)
+        public void CloseView(FilePickerMediatorPanelWindow window)
         {
             ViewClosed?.Invoke();
         }

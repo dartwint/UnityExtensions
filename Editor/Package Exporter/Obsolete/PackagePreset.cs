@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "PackagePreset", menuName = "Export/Unity package export config", order = 1)]
+[Obsolete("")]
+//[CreateAssetMenu(fileName = "PackagePreset", menuName = "Export/Unity package export config", order = 1)]
 public class PackagePreset : ScriptableObject
 {
     [HideInInspector] public bool isTrackable = true;

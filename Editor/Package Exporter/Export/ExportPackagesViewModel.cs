@@ -6,12 +6,14 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 {
     public class ExportPresetsViewModel : INotifyPropertyChanged
     {
-        [SerializeField]
         private PackagePresetsDatabase _presetsDatabase;
 
         private PackagePresetNEW _selectedPreset;
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        private enum PackModes { Together, Separately }
+        private PackModes _packMode = PackModes.Separately;
 
         public PackagePresetsDatabase Database
         {

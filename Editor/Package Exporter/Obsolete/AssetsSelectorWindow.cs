@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using static PackagePreset.PackagePresetEditor;
 
+[Obsolete("")]
 public class AssetsSelectorWindow : EditorWindow
 {
     public event Action Closed;

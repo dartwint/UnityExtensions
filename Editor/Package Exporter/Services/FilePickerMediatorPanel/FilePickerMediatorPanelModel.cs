@@ -3,14 +3,14 @@ using System.Linq;
 
 namespace Dartwint.UnityExtensions.Editor.PackageExporter
 {
-    public class FilePickerModel
+    public class FilePickerMediatorPanelModel
     {
         private HashSet<string> _selectedFiles = new();
         private HashSet<string> _extensions = new();
 
-        public FilePickerModel() { }
+        public FilePickerMediatorPanelModel() { }
 
-        public FilePickerModel(IEnumerable<string> extensions)
+        public FilePickerMediatorPanelModel(IEnumerable<string> extensions)
         {
             _extensions = extensions.ToHashSet();
         }

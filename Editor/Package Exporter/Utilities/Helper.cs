@@ -1,4 +1,5 @@
 using System.IO;
+using UnityEngine;
 
 namespace Dartwint.UnityExtensions.Editor.PackageExporter
 {
@@ -25,5 +26,8 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
                 paths[i] = AssetFinder.GetRelativeToAssetsPath(paths[i]);
             }
         }
+
+        public static string GetProjectName() => 
+            Path.GetFileName(Path.GetDirectoryName(Application.dataPath));
     }
 }
