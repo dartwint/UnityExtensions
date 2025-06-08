@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -27,6 +28,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
         }
 
         public string[] GetFiles() => Files.ToArray();
+        public string[] GetFilesSorted() => Files.OrderBy(f => f).ToArray();
 
         public void SaveFiles()
         {
@@ -48,6 +50,11 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             {
                 Files.Remove(file);
             }
+        }
+
+        public void RemoveFile(string file)
+        {
+            Files.Remove(file);
         }
     }
 }

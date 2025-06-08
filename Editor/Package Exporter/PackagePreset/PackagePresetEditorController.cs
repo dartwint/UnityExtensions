@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -14,7 +16,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 
         public override void OnInspectorGUI()
         {
-            base.OnInspectorGUI();
+            //base.OnInspectorGUI();
 
             _target = (PackagePresetNEW) target;
             if (_target == null)
@@ -22,13 +24,19 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 
             if (_filePickerViewModel == null)
             {
-                _filePickerViewModel = new FilePickerMediatorPanelViewModel(new FilePickerMediatorPanelModel(), _target);
+                _filePickerViewModel = new FilePickerMediatorPanelViewModel(
+                    new FilePickerMediatorPanelModel(), _target);
                 _filePickerViewModel.ViewClosed += OnViewClosed;
             }
 
-            DrawPackageFiles();
+            EditorGUILayout.PropertyField(
+                serializedObject.FindProperty(nameof(_target.exportInfo)), true);
 
+            GUILayout.Space(EditorGUIUtility.singleLineHeight * 1.0f);
             DrawFilePickerControls();
+
+            GUILayout.Space(EditorGUIUtility.singleLineHeight * 1.0f);
+            DrawPackageFiles();
         }
 
         private void OnViewClosed()
@@ -65,33 +73,59 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
         {
             string title = $"Package files";
 
-            string[] files = _target.packageInfo.GetFiles();
-            int filesCount = files.Length;
-
-            if (filesCount > 0)
+            List<string> files = _target.packageInfo.GetFilesSorted().ToList();
+            int filesCount = files.Count;
+            if (filesCount == 0)
             {
-                title += $" (count: {filesCount})";
+                EditorGUILayout.BeginVertical();
+
+                GUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
                 GUILayout.Label(title, EditorStyles.boldLabel);
-                _packageFilesScrollPosition = EditorGUILayout.BeginScrollView(_packageFilesScrollPosition, GUILayout.Height(200));
+                GUILayout.FlexibleSpace();
+                EditorGUILayout.EndHorizontal();
 
-                for (int i = 0; i < filesCount; i++)
+                GUILayout.Label("No files in package", EditorStyles.boldLabel);
+
+                EditorGUILayout.EndVertical();
+
+                return;
+            }
+            
+            title += $" (count: {filesCount})";
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            GUILayout.Label(title, EditorStyles.boldLabel);
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
+
+            _packageFilesScrollPosition = EditorGUILayout.BeginScrollView(
+                _packageFilesScrollPosition, GUILayout.ExpandHeight(true));
+
+            for (int i = 0; i < filesCount; i++)
+            {
+                EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+
+                EditorGUILayout.SelectableLabel(files[i], EditorStyles.boldLabel, 
+                    GUILayout.ExpandHeight(false), 
+                    GUILayout.MinHeight(14f), GUILayout.MaxHeight(20f));
+
+                GUILayout.FlexibleSpace();
+                if (GUILayout.Button("X", GUILayout.ExpandWidth(false)))
                 {
-                    EditorGUILayout.BeginHorizontal();
+                    var file = files[i];
 
-                    GUILayout.Label(files[i], EditorStyles.textField);
+                    files.RemoveAt(i);
+                    i--;
+                    filesCount--;
 
-                    EditorGUILayout.EndHorizontal();
+                    _target.packageInfo.RemoveFile(file);
                 }
 
-                EditorGUILayout.EndScrollView();
+                EditorGUILayout.EndHorizontal();
             }
-            else
-            {
-                GUILayout.Label(title, EditorStyles.boldLabel);
-                GUILayout.BeginHorizontal();
-                GUILayout.Label("No files in package", EditorStyles.boldLabel);
-                GUILayout.EndHorizontal();
-            }
+
+            EditorGUILayout.EndScrollView();
         }
     }
 }
