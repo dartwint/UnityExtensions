@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Dartwint.UnityExtensions.Editor.PackageExporter
 {
-    public class FileHandlerDraggable : IFileHandler<IEnumerable<UnityEngine.Object>>
+    public class UnityObjectPickerFromSourceDraggable : IFilePickerFromSource<IEnumerable<UnityEngine.Object>>
     {
         public ScriptableObject Context { get; private set; }
 
@@ -16,7 +16,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             typeof(EditorWindow),
         };
 
-        public FileHandlerDraggable(ScriptableObject context)
+        public UnityObjectPickerFromSourceDraggable(ScriptableObject context)
         {
             if (context == null || !allowedTypes.Where(t => t.IsAssignableFrom(context.GetType())).Any())
             {
