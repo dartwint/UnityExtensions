@@ -12,7 +12,11 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
     public class PackagePresetEditorController : UnityEditor.Editor
     {
         private PackagePresetNEW _target;
-        private FilePickerMediatorPanelViewModel _filePickerViewModel;
+        //private FilePickerMediatorPanelViewModel _filePickerViewModel;
+
+        private FileHandlerDraggable _fileHandler;
+
+        public Color backgroundColor = Color.green;
 
         public override void OnInspectorGUI()
         {
@@ -22,11 +26,16 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             if (_target == null)
                 return;
 
-            if (_filePickerViewModel == null)
+            //if (_filePickerViewModel == null)
+            //{
+            //    _filePickerViewModel = new FilePickerMediatorPanelViewModel(
+            //        new FilePickerMediatorPanelModel(), _target);
+            //    _filePickerViewModel.ViewClosed += OnViewClosed;
+            //}
+
+            if (_fileHandler == null)
             {
-                _filePickerViewModel = new FilePickerMediatorPanelViewModel(
-                    new FilePickerMediatorPanelModel(), _target);
-                _filePickerViewModel.ViewClosed += OnViewClosed;
+                _fileHandler = new FileHandlerDraggable(this);
             }
 
             EditorGUILayout.PropertyField(
@@ -39,12 +48,12 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             DrawPackageFiles();
         }
 
-        private void OnViewClosed()
-        {
-            _filePickerViewModel.ViewClosed -= OnViewClosed;
-            _filePickerViewModel = null;
-            Repaint();
-        }
+        //private void OnViewClosed()
+        //{
+        //    _filePickerViewModel.ViewClosed -= OnViewClosed;
+        //    _filePickerViewModel = null;
+        //    Repaint();
+        //}
 
         private void DrawFilePickerControls()
         {
@@ -55,16 +64,60 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             EditorGUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button("Add items"))
+            //if (GUILayout.Button("Add items"))
+            //{
+            //    _filePickerViewModel.OpenViewForAdditionButtonClick();
+            //}
+
+            //if (GUILayout.Button("Remove items"))
+            //{
+            //    _filePickerViewModel.OpenViewForRemovalButtonClick();
+            //}
+
+            _fileHandler.PickFiles(DrawGUIAndGetDroppedObjects().ToList());
+
+            GUILayout.EndHorizontal();
+        }
+
+        private IEnumerable<UnityEngine.Object> DrawGUIAndGetDroppedObjects()
+        {
+            Rect dropArea = GUILayoutUtility.GetRect(0, 50, GUILayout.ExpandWidth(true));
+
+            Event currentEvent = Event.current;
+
+            Color originalColor = GUI.backgroundColor;
+
+            GUI.backgroundColor = backgroundColor;
+            GUI.Box(dropArea, "Drag assets here");
+            GUI.backgroundColor = originalColor;
+
+            switch (currentEvent.type)
             {
-                _filePickerViewModel.OpenViewForAdditionButtonClick();
+                case EventType.DragUpdated:
+                case EventType.DragPerform:
+                    {
+                        if (dropArea.Contains(currentEvent.mousePosition))
+                        {
+                            DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+
+                            if (currentEvent.type == EventType.DragPerform)
+                            {
+                                DragAndDrop.AcceptDrag();
+
+                                foreach (var draggedObject in DragAndDrop.objectReferences)
+                                {
+                                    yield return draggedObject;
+                                }
+                            }
+
+                            currentEvent.Use();
+                        }
+
+                        break;
+                    }
             }
 
-            if (GUILayout.Button("Remove items"))
-            {
-                _filePickerViewModel.OpenViewForRemovalButtonClick();
-            }
-            GUILayout.EndHorizontal();
+            yield break;
         }
 
         private Vector2 _packageFilesScrollPosition;

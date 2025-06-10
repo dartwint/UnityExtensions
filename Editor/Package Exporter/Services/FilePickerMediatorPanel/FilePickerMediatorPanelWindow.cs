@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -14,7 +15,8 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
         private void OnGUI()
         {
             _controlsScrollPosition = GUILayout.BeginScrollView(_controlsScrollPosition);
-            DrawSelectionControls();
+            //DrawSelectionControls();
+            //DrawDragNDropArea();
 
             DrawSelectedFiles();
 
@@ -69,6 +71,56 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             }
         }
 
+        private void DrawDragNDropArea()
+        {
+            Rect dropArea = GUILayoutUtility.GetRect(0, 50, GUILayout.ExpandWidth(true));
+
+            Event currentEvent = Event.current;
+
+            //bool isDraggingOver = currentEvent.type == EventType.DragUpdated;
+            //&& dropArea.Contains(currentEvent.mousePosition);
+
+            Color originalColor = GUI.backgroundColor;
+
+            //if (isDraggingOver)
+            //{
+            //    GUI.color = Color.green;
+            //    Repaint();
+            //}
+
+            GUI.backgroundColor = Color.green;
+            GUI.Box(dropArea, "Drag assets here");
+            GUI.backgroundColor = originalColor;
+
+            switch (currentEvent.type)
+            {
+                case EventType.DragUpdated:
+                case EventType.DragPerform:
+                    {
+                        if (dropArea.Contains(currentEvent.mousePosition))
+                        {
+                            DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+
+                            if (currentEvent.type == EventType.DragPerform)
+                            {
+                                DragAndDrop.AcceptDrag();
+
+                                foreach (var draggedObject in DragAndDrop.objectReferences)
+                                {
+                                    Debug.Log($"Дропнут объект: {draggedObject.name}");
+                                }
+                            }
+
+                            Repaint();
+                            currentEvent.Use();
+                        }
+
+                        break;
+                    }
+            }
+        }
+
+        [Obsolete("")]
         private void DrawSelectionControls()
         {
             GUILayout.BeginVertical(GUI.skin.box);

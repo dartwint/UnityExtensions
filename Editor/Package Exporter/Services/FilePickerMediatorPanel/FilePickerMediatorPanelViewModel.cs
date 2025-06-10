@@ -117,7 +117,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             FilePickerMediatorPanelWindow window = ScriptableObject.CreateInstance<FilePickerMediatorPanelWindow>();
             window.titleContent.text = GetViewTitle(PackageFilesEditMode);
             window.viewModel = this;
-            window.ShowModal();
+            window.ShowUtility();
         }
 
         public void CloseView(FilePickerMediatorPanelWindow window)
