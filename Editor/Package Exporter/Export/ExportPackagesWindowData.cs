@@ -1,3 +1,4 @@
+using UnityEditor;
 using UnityEngine;
 
 namespace Dartwint.UnityExtensions.Editor.PackageExporter
@@ -12,6 +13,9 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 
         [SerializeField]
         public string destinationFolder;
+
+        [SerializeField]
+        public ExportPackageOptions exportUnityPackageOptions;
 
         [SerializeField]
         public string totalPackageName = "TotalPackage from project: " + 

@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -103,23 +105,45 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 
         private void HandleExportControls()
         {
-            GUILayout.BeginVertical();
-
-            _data.packMode = (PackMode) EditorGUILayout.EnumPopup("Pack mode", _data.packMode);
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Pack mode", GUILayout.ExpandWidth(true));
+            GUILayout.FlexibleSpace();
+            _data.packMode = (PackMode) EditorGUILayout.EnumPopup(_data.packMode);
+            GUILayout.EndHorizontal();
 
             if (GUILayout.Button("Change output destination"))
             {
-                _destinationFolder = EditorUtility.OpenFolderPanel("Select output directory", _destinationFolder, "");
+                string selectedFolder = EditorUtility.OpenFolderPanel("Select output directory", _destinationFolder, "");
+                if (!string.IsNullOrEmpty(selectedFolder) || Directory.Exists(selectedFolder))
+                    _destinationFolder = selectedFolder;
             }
             EditorGUILayout.LabelField("Export destination", _destinationFolder);
             GUILayout.FlexibleSpace();
+
+            if (_data.packMode == PackMode.Standalone && !UnityPackagePresetsHasUniqueNames())
+            {
+                EditorGUILayout.HelpBox("Current database has presets with duplicate names!\n" +
+                    "Conflicting packages will be overwritten", MessageType.Warning);
+            }
 
             if (GUILayout.Button("EXPORT"))
             {
                 PerformExport();
             }
+        }
 
-            GUILayout.EndVertical();
+        private bool UnityPackagePresetsHasUniqueNames()
+        {
+            var presets = _presetsDatabase.Presets.ToArray();
+            HashSet<string> names = new HashSet<string>();
+            foreach (var preset in presets)
+            {
+                var exportInfo = preset.exportInfo as UnityPackageExportInfo;
+                if (exportInfo == null || !names.Add(exportInfo.fileName))
+                    break;
+            }
+
+            return names.Count == presets.Length;
         }
 
         private void PerformExport()
@@ -127,25 +151,113 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             ExportFactory exportFactory = new ExportFactory();
             ExportManager exportManager = new ExportManager(exportFactory);
 
-            if (_data.packMode == PackMode.Batch)
+            var presets = _presetsDatabase.Presets.ToArray();
+            int presetsCount = _presetsDatabase.GetPresetsCount();
+
+            // aggregate for unitypackage
+            UnityPackageExportInfo totalUnityPackageExportInfo = new UnityPackageExportInfo();
+            totalUnityPackageExportInfo.targetDirectory = _data.destinationFolder;
+            totalUnityPackageExportInfo.fileName = _data.totalPackageName;
+            totalUnityPackageExportInfo.exportPackageOptions = _data.exportUnityPackageOptions;
+            for (int i = 0; i < presetsCount; i++)
             {
-                var exportInfo = new UnityPackageExportInfo();
-                exportInfo.targetDirectory = _destinationFolder;
-                exportInfo.fileName = _data.totalPackageName;
-
-                var presets = _presetsDatabase.Presets;
-                foreach (var preset in presets)
+                var unityPackageExportInfo = presets[i].exportInfo as UnityPackageExportInfo;
+                if (unityPackageExportInfo != null)
                 {
-                    if (preset.exportInfo is UnityPackageExportInfo unityExportInfo)
-                        exportInfo.exportPackageOptions = unityExportInfo.exportPackageOptions;
-
-                    var tmp = preset.exportInfo;
-                    preset.exportInfo = exportInfo;
-                    exportManager.Export(preset);
-
-                    preset.exportInfo = tmp;
+                    if (string.IsNullOrEmpty(unityPackageExportInfo.fileName))
+                    {
+                        unityPackageExportInfo.fileName = $"UnityPackage{i}";
+                    }
                 }
             }
+            //
+
+            if (_data.packMode == PackMode.Batch)
+            {
+                Dictionary<Type, PackagePresetNEW> groupedPresets = GetGroupedPresets(presets);
+                foreach (var presetPair in groupedPresets)
+                {
+                    if (presetPair.Key.IsAssignableFrom(typeof(UnityPackageExportInfo)) &&
+                        presetPair.Value.exportInfo is UnityPackageExportInfo unityPackageExportInfo)
+                    {
+                        presetPair.Value.exportInfo = totalUnityPackageExportInfo;
+                    }
+
+                    bool exportSuccesful = exportManager.Export(presetPair.Value);
+
+                    if (exportSuccesful)
+                        Debug.Log($"Export ({nameof(PackMode.Batch)}): Succesful exported {presetPair.Value.name} " +
+                            $"to {presetPair.Value.exportInfo.GetTargetPath()}");
+                    else
+                        Debug.LogError($"Export ({nameof(PackMode.Batch)}): Error while exporting {presetPair.Value.name} " +
+                            $"to {presetPair.Value.exportInfo.GetTargetPath()}");
+                }
+            }
+            else if (_data.packMode == PackMode.Standalone)
+            {
+                foreach (var preset in presets)
+                {
+                    if (preset.exportInfo is UnityPackageExportInfo unityPackageExportInfo)
+                    {
+                        unityPackageExportInfo.exportPackageOptions = totalUnityPackageExportInfo.exportPackageOptions;
+                        unityPackageExportInfo.targetDirectory = totalUnityPackageExportInfo.targetDirectory;
+                    }
+
+                    bool exportSuccesful = exportManager.Export(preset);
+
+                    if (exportSuccesful)
+                        Debug.Log($"Export ({nameof(PackMode.Standalone)}): Succesful exported {preset.name} " +
+                            $"to {preset.exportInfo.GetTargetPath()}");
+                    else
+                        Debug.LogError($"Export ({nameof(PackMode.Standalone)}): Error while exporting {preset.name} " +
+                            $"to {preset.exportInfo.GetTargetPath()}");
+                }
+            }
+        }
+
+        private Dictionary<Type, PackagePresetNEW> GetGroupedPresets(PackagePresetNEW[] presets)
+        {
+            Dictionary<Type, PackagePresetNEW> groupedPresets = new();
+            HashSet<Type> presetTypes = new();
+            foreach (PackagePresetNEW preset in presets)
+            {
+                if (preset.exportInfo is not PackageExportInfo)
+                {
+                    Debug.Log($"Preset type: {preset.exportInfo.GetType()}\nRequried type: {typeof(PackageExportInfo)}");
+                    throw new NotSupportedException($"Provided type {preset.exportInfo.GetType()} is not correct");
+                }
+
+                presetTypes.Add(preset.exportInfo.GetType());
+            }
+
+            foreach (Type t in presetTypes)
+            {
+                if (!groupedPresets.ContainsKey(t))
+                {
+                    PackagePresetNEW newPreset = ScriptableObject.CreateInstance<PackagePresetNEW>();
+                    newPreset.name = t.Name;
+                    newPreset.exportInfo = (PackageExportInfo) Activator.CreateInstance(t);
+                    newPreset.exportInfo.targetDirectory = _data.destinationFolder;
+                    groupedPresets.Add(t, newPreset);
+                }
+
+                foreach (PackagePresetNEW preset in presets.Where(p => p.exportInfo.GetType() == t))
+                {
+                    groupedPresets[t].packageInfo.AddFiles(preset.packageInfo.GetFiles());
+                }
+            }
+
+            Type unityT = typeof(UnityPackageExportInfo);
+            if (groupedPresets.ContainsKey(unityT))
+            {
+                foreach (PackagePresetNEW preset in presets.Where(p => p.exportInfo.GetType() == unityT))
+                {
+                    ((UnityPackageExportInfo) groupedPresets[unityT].exportInfo).exportPackageOptions
+                        |= ((UnityPackageExportInfo) preset.exportInfo).exportPackageOptions;
+                }
+            }
+
+            return groupedPresets;
         }
 
         private void OnGUI()
@@ -153,13 +265,25 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             HandleDbControls();
             if (_presetsDatabase == null)
                 return;
+            if (_data == null) 
+                return;
+
             //GUILayout.FlexibleSpace();
             HandleDbEditor();
             GUILayout.FlexibleSpace();
 
             GUILayout.BeginVertical();
+
             if (_data.packMode == PackMode.Batch)
                 _data.totalPackageName = EditorGUILayout.TextField("Total pack name", _data.totalPackageName);
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Export options (only for .unitypackage)", GUILayout.ExpandWidth(true));
+            GUILayout.FlexibleSpace();
+            _data.exportUnityPackageOptions = (ExportPackageOptions) 
+                EditorGUILayout.EnumFlagsField(_data.exportUnityPackageOptions);
+            GUILayout.EndHorizontal();
+
             GUILayout.EndVertical();
             //GUILayout.FlexibleSpace();
 

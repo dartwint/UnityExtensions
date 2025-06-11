@@ -1,5 +1,6 @@
 using System;
 using UnityEditor;
+using UnityEngine;
 
 namespace Dartwint.UnityExtensions.Editor.PackageExporter
 {
@@ -27,8 +28,10 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Debug.LogError(e.Message);
+
                 return false;
             }
         }

@@ -32,7 +32,11 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
         public void SaveFiles()
         {
             _storedFiles.Clear();
-            _storedFiles = _files.ToList();
+
+            if (_files != null)
+            {
+                _storedFiles = _files.ToList();
+            }
         }
 
         public void AddFiles(IEnumerable<string> files)
