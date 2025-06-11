@@ -20,13 +20,13 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
                 if (packagePreset.exportInfo is not RawExportInfo info)
                     throw new ExportProcessorTypeMismatchException(packagePreset.exportInfo.GetType(), GetType(), packagePreset);
 
-                if (!Directory.Exists(info.directoryPath))
+                if (!Directory.Exists(info.targetDirectory))
                     return false;
 
                 string[] files = packagePreset.packageInfo.GetFiles();
                 foreach (string file in files)
                 {
-                    File.Copy(file, Path.Combine(info.directoryPath, Path.GetFileName(file)), true);
+                    File.Copy(file, Path.Combine(info.targetDirectory, Path.GetFileName(file)), true);
                 }
 
                 return true;

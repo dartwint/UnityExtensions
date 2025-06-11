@@ -9,21 +9,30 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
     [CustomEditor(typeof(PackagePresetNEW))]
     public class PackagePresetEditor : UnityEditor.Editor
     {
+        private IPackageFilesDrawer _packageFilesDrawer;
         private IFilePickerDrawer _filePickerDrawer;
-        private IPackageInfoDrawer _packageInfoDrawer;
+        private IPackageExportInfoDrawer _packageExportInfoDrawer;
         private PackagePresetNEW _target;
+
+        private static bool _exportInfoFoldout = true;
 
         private void OnEnable()
         {
             if (_filePickerDrawer == null)
             {
-                _filePickerDrawer = new DragNDropDrawer(new UnityObjectPickerFromSourceDraggable(this), this);
+                _filePickerDrawer = new DragNDropDrawer(
+                    new UnityObjectPickerFromSourceDraggable(this), this);
                 //_filePickerDrawer = new FilePickerMediatorPanelDrawer();
             }
 
-            if (_packageInfoDrawer == null)
+            if (_packageFilesDrawer == null)
             {
-                _packageInfoDrawer = new PackageInfoDrawerDummy();
+                _packageFilesDrawer = new PackageFilesDrawerDummy();
+            }
+
+            if (_packageExportInfoDrawer == null)
+            {
+                _packageExportInfoDrawer = new PackageExportInfoDrawerStd();
             }
         }
 
@@ -35,14 +44,19 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             if (_target == null)
                 return;
 
-            EditorGUILayout.PropertyField(
-                serializedObject.FindProperty(nameof(_target.exportInfo)), true);
+            _exportInfoFoldout = EditorGUILayout.Foldout(_exportInfoFoldout, $"{nameof(PackageExportInfo)}");
+            if (_exportInfoFoldout)
+            {
+                _packageExportInfoDrawer.Draw(serializedObject);
+            }
 
             GUILayout.Space(EditorGUIUtility.singleLineHeight * 1.0f);
             _filePickerDrawer.Draw(serializedObject);
 
             GUILayout.Space(EditorGUIUtility.singleLineHeight * 1.0f);
-            _packageInfoDrawer.Draw(_target.packageInfo);
+            _packageFilesDrawer.Draw(_target.packageInfo);
+
+            serializedObject.ApplyModifiedProperties();
         }
     }
 }

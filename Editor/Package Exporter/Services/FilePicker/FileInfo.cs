@@ -1,4 +1,5 @@
 using System.IO;
+using UnityEditor;
 
 namespace Dartwint.UnityExtensions.Editor.PackageExporter
 {
@@ -10,9 +11,33 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 
         //private bool _insideProject;
 
-        public FileInfo(string path)
+        public FileInfo(string path, bool isDirectory, bool isUnityAsset)
         {
             FullPath = path;
+            IsDirectory = isDirectory;
+            IsUnityAsset = isUnityAsset;
+        }
+
+        public static FileInfo ConvertFromPath(string path)
+        {
+            if (!FileExists(path))
+            {
+                return null;
+            }
+
+            bool isDirectory = Directory.Exists(path);
+            bool isUnityAsset = UnityAssetExist(path);
+            return new FileInfo(path, isDirectory, isUnityAsset);
+        }
+
+        public static bool UnityAssetExist(string path)
+        {
+            if (!FileExists(path))
+            {
+                return false;
+            }
+
+            return !string.IsNullOrEmpty(AssetDatabase.AssetPathToGUID(path));
         }
 
         public static bool FileExists(string path)

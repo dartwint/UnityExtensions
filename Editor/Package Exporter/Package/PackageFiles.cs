@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -6,7 +5,7 @@ using UnityEngine;
 namespace Dartwint.UnityExtensions.Editor.PackageExporter
 {
     [System.Serializable]
-    public class PackageInfo
+    public class PackageFiles
     {
         [SerializeField, HideInInspector]
         private List<string> _storedFiles = new();

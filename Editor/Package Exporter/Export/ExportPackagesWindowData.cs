@@ -8,19 +8,13 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
         public PackagePresetsDatabase presetsDatabase;
 
         [SerializeField]
-        public string destinationFolder;
-
-        #region For override DB fields
-
-        [SerializeField]
-        public bool overrideExportOptions = false;
-
-        [SerializeField]
         public PackMode packMode;
 
         [SerializeField]
-        public string totalPackageName = "NewTotalPackage from " + Helper.GetProjectName();
+        public string destinationFolder;
 
-        #endregion
+        [SerializeField]
+        public string totalPackageName = "TotalPackage from project: " + 
+            Helper.GetProjectName();
     }
 }

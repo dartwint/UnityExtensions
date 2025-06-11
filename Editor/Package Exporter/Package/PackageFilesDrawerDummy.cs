@@ -5,16 +5,16 @@ using UnityEngine;
 
 namespace Dartwint.UnityExtensions.Editor.PackageExporter
 {
-    public class PackageInfoDrawerDummy : IPackageInfoDrawer
+    public class PackageFilesDrawerDummy : IPackageFilesDrawer
     {
         private Vector2 _packageFilesScrollPosition;
 
-        public void Draw(PackageInfo packageInfo)
+        public void Draw(PackageFiles packageInfo)
         {
             DrawPackageFiles(packageInfo);
         }
 
-        private void DrawPackageFiles(PackageInfo packageInfo)
+        private void DrawPackageFiles(PackageFiles packageInfo)
         {
             string title = $"Package files";
 

@@ -5,14 +5,14 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 {
     public interface IExportProcessorFactory
     {
-        IExportProcessor GetProcessor(ExportInfo exportInfo);
+        IExportProcessor GetProcessor(PackageExportInfo exportInfo);
     }
 
     public class ExportFactory : IExportProcessorFactory
     {
         private readonly Dictionary<Type, IExportProcessor> _processors = new();
 
-        public IExportProcessor GetProcessor(ExportInfo exportInfo)
+        public IExportProcessor GetProcessor(PackageExportInfo exportInfo)
         {
             var type = exportInfo.GetType();
 
@@ -24,7 +24,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             return _processors[type];
         }
 
-        private IExportProcessor CreateProcessor(ExportInfo exportInfo)
+        private IExportProcessor CreateProcessor(PackageExportInfo exportInfo)
         {
             var type = exportInfo.GetRequiredProcessorType();
             return Activator.CreateInstance(type) as IExportProcessor;

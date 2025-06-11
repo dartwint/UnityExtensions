@@ -5,10 +5,10 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 {
     public class PackagePresetNEW : ScriptableObject
     {
-        public PackageInfo packageInfo = new();
+        public PackageFiles packageInfo = new();
 
         [SerializeReference]
-        public ExportInfo exportInfo = new UnityPackageExportInfo();
+        public PackageExportInfo exportInfo;
 
         public void Save()
         {
@@ -18,11 +18,17 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             AssetDatabase.SaveAssetIfDirty(this);
         }
 
-        [MenuItem("Tools/Package Exporter/Create new package preset")]
-        public static void CreateAsset()
+        [MenuItem("Tools/Package Exporter/Create package preset/Unity package preset")]
+        public static void CreateAssetAsUnityPackagePreset()
+        {
+            CreateAsset<UnityPackageExportInfo>();
+        }
+
+        public static void CreateAsset<TPackageExportInfo>() where TPackageExportInfo : PackageExportInfo, new()
         {
             var presetAsset = CreateInstance<PackagePresetNEW>();
-            string baseName = "NewPackagePreset";
+            presetAsset.exportInfo = new TPackageExportInfo();
+            string baseName = $"New {typeof(TPackageExportInfo).Name.Replace("ExportInfo", " Preset")}";
 
             string path = $"Assets/{baseName}.asset";
             int counter = 0;
@@ -32,7 +38,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
                 presetAsset.name = $"{baseName}{counter}";
                 path = $"Assets/{presetAsset.name}.asset";
             }
-            
+
             AssetDatabase.CreateAsset(presetAsset, path);
             AssetDatabase.SaveAssetIfDirty(presetAsset);
             AssetDatabase.Refresh();

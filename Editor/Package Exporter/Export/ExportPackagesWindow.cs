@@ -8,7 +8,6 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
     public class ExportPackagesWindow : EditorWindow
     {
         private PackagePresetsDatabase _presetsDatabase;
-        //private ExportPresetsViewModel _viewModel;
 
         private ExportPackagesWindowData _data;
         private const string _dataDir = "Assets/PackageExporter";
@@ -102,30 +101,51 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             GUILayout.EndHorizontal();
         }
 
-        private void HandleDbOverrides()
-        {
-            GUILayout.BeginHorizontal();
-            _data.overrideExportOptions = EditorGUILayout.Toggle("Override DB options", _data.overrideExportOptions);
-            GUILayout.EndHorizontal();
-            if (_data.overrideExportOptions)
-            {
-                GUILayout.BeginVertical();
-                _data.packMode = (PackMode) EditorGUILayout.EnumPopup("Pack mode", _data.packMode);
-                if (_data.packMode == PackMode.Batch)
-                    _data.totalPackageName = EditorGUILayout.TextField("Total pack name", _data.totalPackageName);
-                GUILayout.EndVertical();
-            }
-        }
-
         private void HandleExportControls()
         {
             GUILayout.BeginVertical();
+
+            _data.packMode = (PackMode) EditorGUILayout.EnumPopup("Pack mode", _data.packMode);
+
             if (GUILayout.Button("Change output destination"))
             {
                 _destinationFolder = EditorUtility.OpenFolderPanel("Select output directory", _destinationFolder, "");
             }
             EditorGUILayout.LabelField("Export destination", _destinationFolder);
+            GUILayout.FlexibleSpace();
+
+            if (GUILayout.Button("EXPORT"))
+            {
+                PerformExport();
+            }
+
             GUILayout.EndVertical();
+        }
+
+        private void PerformExport()
+        {
+            ExportFactory exportFactory = new ExportFactory();
+            ExportManager exportManager = new ExportManager(exportFactory);
+
+            if (_data.packMode == PackMode.Batch)
+            {
+                var exportInfo = new UnityPackageExportInfo();
+                exportInfo.targetDirectory = _destinationFolder;
+                exportInfo.fileName = _data.totalPackageName;
+
+                var presets = _presetsDatabase.Presets;
+                foreach (var preset in presets)
+                {
+                    if (preset.exportInfo is UnityPackageExportInfo unityExportInfo)
+                        exportInfo.exportPackageOptions = unityExportInfo.exportPackageOptions;
+
+                    var tmp = preset.exportInfo;
+                    preset.exportInfo = exportInfo;
+                    exportManager.Export(preset);
+
+                    preset.exportInfo = tmp;
+                }
+            }
         }
 
         private void OnGUI()
@@ -137,8 +157,11 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             HandleDbEditor();
             GUILayout.FlexibleSpace();
 
-            HandleDbOverrides();
-            GUILayout.FlexibleSpace();
+            GUILayout.BeginVertical();
+            if (_data.packMode == PackMode.Batch)
+                _data.totalPackageName = EditorGUILayout.TextField("Total pack name", _data.totalPackageName);
+            GUILayout.EndVertical();
+            //GUILayout.FlexibleSpace();
 
             HandleExportControls();
             GUILayout.FlexibleSpace();
