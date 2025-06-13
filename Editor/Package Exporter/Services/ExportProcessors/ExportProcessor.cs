@@ -9,7 +9,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             _exportProcessor = exportProcessor;
         }
 
-        public bool Export(PackagePresetNEW packagePreset)
+        public bool Export(PackagePreset packagePreset)
         {
             if (packagePreset == null)
                 throw new System.ArgumentNullException(nameof(packagePreset));

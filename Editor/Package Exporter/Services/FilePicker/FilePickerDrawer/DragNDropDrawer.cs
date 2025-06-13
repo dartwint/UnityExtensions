@@ -32,7 +32,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             }
 
             GUILayout.BeginHorizontal();
-            if (serializedObject.targetObject is PackagePresetNEW packagePreset)
+            if (serializedObject.targetObject is PackagePreset packagePreset)
             {
                 var droppedObjects = DrawGUIAndGetDroppedObjects().ToList();
                 packagePreset.packageInfo.AddFiles(_filePicker.PickFiles(droppedObjects));

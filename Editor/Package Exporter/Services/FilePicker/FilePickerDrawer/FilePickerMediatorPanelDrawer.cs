@@ -21,7 +21,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 
         public void Draw(SerializedObject serializedObject)
         {
-            if (_filePickerViewModel == null && serializedObject.targetObject is PackagePresetNEW target)
+            if (_filePickerViewModel == null && serializedObject.targetObject is PackagePreset target)
             {
                 _filePickerViewModel = new FilePickerMediatorPanelViewModel(
                     new FilePickerMediatorPanelModel(), target);

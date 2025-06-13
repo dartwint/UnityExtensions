@@ -6,7 +6,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 {
     public class UnityPackageExportProcessor : IExportProcessor
     {
-        public bool CanProccess(PackagePresetNEW packagePreset)
+        public bool CanProccess(PackagePreset packagePreset)
         {
             if (packagePreset.exportInfo.GetRequiredProcessorType() != GetType())
                 return false;
@@ -14,7 +14,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             return true;
         }
 
-        public bool Export(PackagePresetNEW packagePreset)
+        public bool Export(PackagePreset packagePreset)
         {
             try
             {
@@ -30,7 +30,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             }
             catch (Exception e)
             {
-                Debug.LogError(e.Message);
+                Debug.LogError($"Package export error.\n{e.Message}");
 
                 return false;
             }

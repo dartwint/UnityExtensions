@@ -13,38 +13,14 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 
         public void Draw(SerializedObject serializedObject)
         {
-            var packagePreset = (PackagePresetNEW) serializedObject.targetObject;
+            var packagePreset = (PackagePreset) serializedObject.targetObject;
             if (packagePreset == null)
             {
                 throw new ArgumentNullException($"Provided {nameof(serializedObject.targetObject)} " +
-                    $"is not a {typeof(PackagePresetNEW)} type");
+                    $"is not a {typeof(PackagePreset)} type");
             }
 
             var exportInfo = packagePreset.exportInfo;
-
-            //if (exportInfo.alwaysExportStandalone = GUILayout.Toggle(
-            //    exportInfo.alwaysExportStandalone, "Always export as standalone package"))
-            //{
-            //    GUILayout.BeginHorizontal();
-            //    GUILayout.FlexibleSpace();
-            //    GUILayout.Label("Output Directory", _centeredStyle, GUILayout.ExpandWidth(true));
-            //    GUILayout.FlexibleSpace();
-            //    GUILayout.EndHorizontal();
-
-            //    GUILayout.BeginHorizontal();
-            //    if (GUILayout.Button("Select", GUILayout.ExpandWidth(false)))
-            //    {
-            //        string directory = EditorUtility.OpenFolderPanel($"Select directory for " +
-            //            $"{nameof(PackageExportInfo)}", "", "");
-            //        if (!string.IsNullOrEmpty(directory))
-            //        {
-            //            exportInfo.directoryPath = directory;
-            //        }
-            //    }
-            //    //exportInfo.directoryPath = GUILayout.TextField(exportInfo.directoryPath);
-            //    EditorGUILayout.LabelField(exportInfo.directoryPath);
-            //    GUILayout.EndHorizontal();
-            //}
 
             EditorGUILayout.Space(EditorGUIUtility.singleLineHeight * 1.0f);
 
@@ -64,7 +40,10 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 
             if (exportInfo is RawExportInfo rawExportInfo)
             {
-                //
+                GUILayout.BeginHorizontal();
+                GUILayout.Label("Directory name", GUILayout.ExpandWidth(false));
+                rawExportInfo.directoryName = GUILayout.TextField(rawExportInfo.directoryName);
+                GUILayout.EndHorizontal();
             }
         }
     }

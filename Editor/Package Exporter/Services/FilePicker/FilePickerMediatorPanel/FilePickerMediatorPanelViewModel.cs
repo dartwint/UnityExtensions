@@ -41,7 +41,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
     {
         public FilePickerMediatorPanelModel model;
 
-        private PackagePresetNEW _preset;
+        private PackagePreset _preset;
 
         public PackageFilesEditMode PackageFilesEditMode { get; private set; }
         public SelectorOptions SelectorOptions { get; private set; } = new();
@@ -49,7 +49,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 
         public event Action ViewClosed;
 
-        public FilePickerMediatorPanelViewModel(FilePickerMediatorPanelModel model, PackagePresetNEW preset)
+        public FilePickerMediatorPanelViewModel(FilePickerMediatorPanelModel model, PackagePreset preset)
         {
             this.model = model;
             _preset = preset;

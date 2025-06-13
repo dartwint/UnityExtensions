@@ -1,3 +1,4 @@
+using Dartwint.UnityExtensions.Editor.PackageExporter;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -17,9 +18,9 @@ public class AssetTracker : AssetPostprocessor
 
         foreach (PackagePreset preset in _presets)
         {
-            Dictionary<string, HashSet<PackagePreset>> collisionsForPreset = new Dictionary<string, HashSet<PackagePreset>>();
+            Dictionary<string, HashSet<PackagePreset>> collisionsForPreset = new();
 
-            foreach (string path in preset.assetPaths)
+            foreach (string path in preset.packageInfo.GetFiles())
             {
                 if (!collisionsForPreset.ContainsKey(path))
                 {
@@ -32,7 +33,7 @@ public class AssetTracker : AssetPostprocessor
                 if (preset == other)
                     continue;
 
-                foreach (string path in other.assetPaths)
+                foreach (string path in other.packageInfo.GetFiles())
                 {
                     if (collisionsForPreset.ContainsKey(path))
                     {
@@ -190,7 +191,7 @@ public class AssetTracker : AssetPostprocessor
 
             foreach (string assetPath in importedAssets)
             {
-                if (preset.assetPaths.Contains(assetPath))
+                if (preset.packageInfo.GetFiles().Contains(assetPath))
                 {
                     AssetTrackerLoggerWindow.LogMessage($"Asset imported: {assetPath}.", preset);
                 }
@@ -206,7 +207,7 @@ public class AssetTracker : AssetPostprocessor
 
             foreach (string assetPath in deletedAssets)
             {
-                if (preset.assetPaths.Contains(assetPath))
+                if (preset.packageInfo.GetFiles().Contains(assetPath))
                 {
                     hasChanges = true;
 
@@ -224,10 +225,10 @@ public class AssetTracker : AssetPostprocessor
                 string oldPath = movedFromAssetPaths[i];
                 string newPath = movedAssets[i];
 
-                if (preset.assetPaths.Contains(oldPath))
+                if (preset.packageInfo.GetFiles().Contains(oldPath))
                 {
-                    preset.assetPaths.Remove(oldPath);
-                    preset.assetPaths.Add(newPath);
+                    preset.packageInfo.RemoveFile(oldPath);
+                    preset.packageInfo.AddFile(newPath);
 
                     hasChanges = true;
 

@@ -4,15 +4,15 @@ using UnityEngine;
 namespace Dartwint.UnityExtensions.Editor.PackageExporter
 {
     /// <summary>
-    /// The view and controller operating with <see cref="PackagePresetNEW"></see>
+    /// The view and controller operating with <see cref="PackagePreset"></see>
     /// </summary>
-    [CustomEditor(typeof(PackagePresetNEW))]
+    [CustomEditor(typeof(PackagePreset))]
     public class PackagePresetEditor : UnityEditor.Editor
     {
         private IPackageFilesDrawer _packageFilesDrawer;
         private IFilePickerDrawer _filePickerDrawer;
         private IPackageExportInfoDrawer _packageExportInfoDrawer;
-        private PackagePresetNEW _target;
+        private PackagePreset _target;
 
         private static bool _exportInfoFoldout = true;
 
@@ -40,7 +40,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
         {
             //base.OnInspectorGUI();
 
-            _target = (PackagePresetNEW) target;
+            _target = (PackagePreset) target;
             if (_target == null)
                 return;
 

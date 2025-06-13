@@ -1,6 +1,6 @@
 {
   "name": "com.dartwint.extensions",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "displayName": "Extensions for Unity",
   "description": "Reusable editor and runtime tools for Unity projects.",
   "unity": "6000.1",

@@ -9,7 +9,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             _exportProcessorFactory = exportProcessorFactory;
         }
 
-        public bool Export(PackagePresetNEW packagePreset)
+        public bool Export(PackagePreset packagePreset)
         {
             var processor = _exportProcessorFactory.GetProcessor(packagePreset.exportInfo);
             if (!processor.CanProccess(packagePreset))

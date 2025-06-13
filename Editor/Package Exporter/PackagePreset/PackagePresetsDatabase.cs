@@ -16,7 +16,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
     public class PackagePresetsDatabase : ScriptableObject
     {
         [field: SerializeField]
-        public List<PackagePresetNEW> Presets { get; private set; } = new();
+        public List<PackagePreset> Presets { get; private set; } = new();
 
         public int GetPresetsCount() => Presets.Count;
 
@@ -49,7 +49,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             return database;
         }
 
-        public void AddPreset(PackagePresetNEW packagePreset)
+        public void AddPreset(PackagePreset packagePreset)
         {
             if (!Presets.Contains(packagePreset))
             {
@@ -57,7 +57,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             }
         }
 
-        public void RemovePreset(PackagePresetNEW packagePreset)
+        public void RemovePreset(PackagePreset packagePreset)
         {
             Presets.Remove(packagePreset);
         }

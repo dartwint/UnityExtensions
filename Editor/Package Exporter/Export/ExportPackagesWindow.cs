@@ -9,14 +9,14 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 {
     public class ExportPackagesWindow : EditorWindow
     {
+        private static readonly string _dataEditorPrefsKey;
+        static ExportPackagesWindow()
+        {
+            _dataEditorPrefsKey = typeof(ExportPackagesWindow).FullName;
+        }
+
         private PackagePresetsDatabase _presetsDatabase;
-
         private ExportPackagesWindowData _data;
-        private const string _dataDir = "Assets/PackageExporter";
-        private readonly string _dataAssetPath = 
-            string.Concat(_dataDir, "/", typeof(ExportPackagesWindowData).Name, ".asset");
-
-        private string _destinationFolder;
         
         [MenuItem("Tools/Package Exporter/Export window")]
         private static void ShowExportWindow()
@@ -26,14 +26,27 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 
         private ExportPackagesWindowData CreateDataAsset()
         {
-            var data = CreateInstance<ExportPackagesWindowData>();
+            if (string.IsNullOrEmpty(_dataEditorPrefsKey))
+            {
+                throw new Exception($"{nameof(_dataEditorPrefsKey)} was not initialized");
+            }
 
-            if (!Directory.Exists(_dataDir))
-                Directory.CreateDirectory(_dataDir);
+            ExportPackagesWindowData data = CreateInstance<ExportPackagesWindowData>();
 
-            AssetDatabase.CreateAsset(data, _dataAssetPath);
+            string defaultDir = $"Assets";
+            if (!Directory.Exists(defaultDir))
+                Directory.CreateDirectory(defaultDir);
+
+            string assetPath = $"{defaultDir}/{nameof(ExportPackagesWindowData)}.asset";
+            AssetDatabase.CreateAsset(data, assetPath);
             EditorUtility.SetDirty(data);
             AssetDatabase.SaveAssetIfDirty(data);
+            AssetDatabase.Refresh();
+
+            string guid = AssetDatabase.GUIDFromAssetPath(
+                AssetDatabase.GetAssetPath(data)).ToString();
+
+            EditorPrefs.SetString(_dataEditorPrefsKey, guid);
 
             return data;
         }
@@ -50,13 +63,18 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 
         public void Load()
         {
-            _data = AssetDatabase.LoadAssetAtPath<ExportPackagesWindowData>(_dataAssetPath);
-            if (_data == null)
+            string dataPath = AssetDatabase.GUIDToAssetPath(EditorPrefs.GetString(_dataEditorPrefsKey));
+            if (string.IsNullOrEmpty(dataPath) || !File.Exists(dataPath))
             {
                 _data = CreateDataAsset();
             }
+            else
+            {
+                _data = AssetDatabase.LoadAssetAtPath<ExportPackagesWindowData>(
+                    AssetDatabase.GUIDToAssetPath(EditorPrefs.GetString(_dataEditorPrefsKey)));
+            }
+
             _presetsDatabase = _data.presetsDatabase;
-            _destinationFolder = _data.destinationFolder;
         }
 
         public void Save()
@@ -67,11 +85,10 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             }
 
             _data.presetsDatabase = _presetsDatabase;
-            _data.destinationFolder = _destinationFolder;
 
             EditorUtility.SetDirty(_data);
             AssetDatabase.SaveAssetIfDirty(_data);
-            AssetDatabase.SaveAssets();
+            //AssetDatabase.SaveAssets();
         }
 
         private void HandleDbControls()
@@ -113,11 +130,11 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 
             if (GUILayout.Button("Change output destination"))
             {
-                string selectedFolder = EditorUtility.OpenFolderPanel("Select output directory", _destinationFolder, "");
+                string selectedFolder = EditorUtility.OpenFolderPanel("Select output directory", _data.destinationFolder, "");
                 if (!string.IsNullOrEmpty(selectedFolder) || Directory.Exists(selectedFolder))
-                    _destinationFolder = selectedFolder;
+                    _data.destinationFolder = selectedFolder;
             }
-            EditorGUILayout.LabelField("Export destination", _destinationFolder);
+            EditorGUILayout.LabelField("Export destination", _data.destinationFolder);
             GUILayout.FlexibleSpace();
 
             if (_data.packMode == PackMode.Standalone && !UnityPackagePresetsHasUniqueNames())
@@ -126,7 +143,12 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
                     "Conflicting packages will be overwritten", MessageType.Warning);
             }
 
-            if (GUILayout.Button("EXPORT"))
+            if (string.IsNullOrEmpty(_data.destinationFolder))
+            {
+                EditorGUILayout.HelpBox("You must specify package export destination!", 
+                    MessageType.Warning);
+            }
+            else if (GUILayout.Button("EXPORT"))
             {
                 PerformExport();
             }
@@ -135,6 +157,9 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
         private bool UnityPackagePresetsHasUniqueNames()
         {
             var presets = _presetsDatabase.Presets.ToArray();
+            if (presets == null || presets.Length == 0)
+                return true;
+
             HashSet<string> names = new HashSet<string>();
             foreach (var preset in presets)
             {
@@ -174,7 +199,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
 
             if (_data.packMode == PackMode.Batch)
             {
-                Dictionary<Type, PackagePresetNEW> groupedPresets = GetGroupedPresets(presets);
+                Dictionary<Type, PackagePreset> groupedPresets = GetGroupedPresets(presets);
                 foreach (var presetPair in groupedPresets)
                 {
                     if (presetPair.Key.IsAssignableFrom(typeof(UnityPackageExportInfo)) &&
@@ -215,11 +240,11 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             }
         }
 
-        private Dictionary<Type, PackagePresetNEW> GetGroupedPresets(PackagePresetNEW[] presets)
+        private Dictionary<Type, PackagePreset> GetGroupedPresets(PackagePreset[] presets)
         {
-            Dictionary<Type, PackagePresetNEW> groupedPresets = new();
+            Dictionary<Type, PackagePreset> groupedPresets = new();
             HashSet<Type> presetTypes = new();
-            foreach (PackagePresetNEW preset in presets)
+            foreach (PackagePreset preset in presets)
             {
                 if (preset.exportInfo is not PackageExportInfo)
                 {
@@ -234,14 +259,14 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             {
                 if (!groupedPresets.ContainsKey(t))
                 {
-                    PackagePresetNEW newPreset = ScriptableObject.CreateInstance<PackagePresetNEW>();
+                    PackagePreset newPreset = ScriptableObject.CreateInstance<PackagePreset>();
                     newPreset.name = t.Name;
                     newPreset.exportInfo = (PackageExportInfo) Activator.CreateInstance(t);
                     newPreset.exportInfo.targetDirectory = _data.destinationFolder;
                     groupedPresets.Add(t, newPreset);
                 }
 
-                foreach (PackagePresetNEW preset in presets.Where(p => p.exportInfo.GetType() == t))
+                foreach (PackagePreset preset in presets.Where(p => p.exportInfo.GetType() == t))
                 {
                     groupedPresets[t].packageInfo.AddFiles(preset.packageInfo.GetFiles());
                 }
@@ -250,7 +275,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             Type unityT = typeof(UnityPackageExportInfo);
             if (groupedPresets.ContainsKey(unityT))
             {
-                foreach (PackagePresetNEW preset in presets.Where(p => p.exportInfo.GetType() == unityT))
+                foreach (PackagePreset preset in presets.Where(p => p.exportInfo.GetType() == unityT))
                 {
                     ((UnityPackageExportInfo) groupedPresets[unityT].exportInfo).exportPackageOptions
                         |= ((UnityPackageExportInfo) preset.exportInfo).exportPackageOptions;
@@ -332,7 +357,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             if (_presetPickerShown)
             {
                 _presetPickerShown = false;
-                EditorGUIUtility.ShowObjectPicker<PackagePresetNEW>(null, false, "", _pickerControlID);
+                EditorGUIUtility.ShowObjectPicker<PackagePreset>(null, false, "", _pickerControlID);
             }
         }
 
@@ -341,7 +366,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             if (Event.current.commandName == "ObjectSelectorUpdated" &&
                 EditorGUIUtility.GetObjectPickerControlID() == _pickerControlID)
             {
-                PackagePresetNEW selected = EditorGUIUtility.GetObjectPickerObject() as PackagePresetNEW;
+                PackagePreset selected = EditorGUIUtility.GetObjectPickerObject() as PackagePreset;
                 if (selected != null)
                 {
                     _presetsDatabase.AddPreset(selected);

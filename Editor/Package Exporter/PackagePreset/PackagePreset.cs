@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Dartwint.UnityExtensions.Editor.PackageExporter
 {
-    public class PackagePresetNEW : ScriptableObject
+    public class PackagePreset : ScriptableObject
     {
         public PackageFiles packageInfo = new();
 
@@ -24,15 +24,21 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             CreateAsset<UnityPackageExportInfo>();
         }
 
+        [MenuItem("Tools/Package Exporter/Create package preset/Raw files package preset")]
+        public static void CreateAssetAsRawFilesPreset()
+        {
+            CreateAsset<RawExportInfo>();
+        }
+
         public static void CreateAsset<TPackageExportInfo>() where TPackageExportInfo : PackageExportInfo, new()
         {
-            var presetAsset = CreateInstance<PackagePresetNEW>();
+            var presetAsset = CreateInstance<PackagePreset>();
             presetAsset.exportInfo = new TPackageExportInfo();
             string baseName = $"New {typeof(TPackageExportInfo).Name.Replace("ExportInfo", " Preset")}";
 
             string path = $"Assets/{baseName}.asset";
             int counter = 0;
-            while (AssetDatabase.LoadAssetAtPath<PackagePresetNEW>(path) != null)
+            while (AssetDatabase.LoadAssetAtPath<PackagePreset>(path) != null)
             {
                 counter++;
                 presetAsset.name = $"{baseName}{counter}";

@@ -47,6 +47,11 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             }
         }
 
+        public void AddFile(string file)
+        {
+            Files.Add(file);
+        }
+
         public void RemoveFiles(IEnumerable<string> files)
         {
             foreach (string file in files)

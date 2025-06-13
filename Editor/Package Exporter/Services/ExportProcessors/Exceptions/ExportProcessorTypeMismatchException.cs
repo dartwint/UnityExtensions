@@ -7,7 +7,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
         public Type exportInfoType;
         public Type exportProcessorType;
 
-        public PackagePresetNEW packagePreset;
+        public PackagePreset packagePreset;
 
         public ExportProcessorTypeMismatchException(Type exportInfoType, Type exportProcessorType)
         {
@@ -15,7 +15,7 @@ namespace Dartwint.UnityExtensions.Editor.PackageExporter
             this.exportProcessorType = exportProcessorType;
         }
 
-        public ExportProcessorTypeMismatchException(Type exportInfoType, Type exportProcessorType, PackagePresetNEW packagePreset)
+        public ExportProcessorTypeMismatchException(Type exportInfoType, Type exportProcessorType, PackagePreset packagePreset)
         {
             this.exportInfoType = exportInfoType;
             this.exportProcessorType = exportProcessorType;
