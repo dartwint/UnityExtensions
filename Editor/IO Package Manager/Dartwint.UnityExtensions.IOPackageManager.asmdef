@@ -1,0 +1,16 @@
+{
+    "name": "Dartwint.UnityExtensions.IOPackageManager",
+    "rootNamespace": "Dartwint.UnityExtensions.IOPackageManager",
+    "references": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
